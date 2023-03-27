@@ -1,10 +1,5 @@
 package org.example;
 
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -15,14 +10,17 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-@WebServlet(urlPatterns = {"/files"})
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+@WebServlet("/files")
 public class FileManagerServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
-        resp.setContentType("text/html; charset=UTF-8");
-        resp.setCharacterEncoding("UTF-8");
-
         // Время генерации страницы
         String date = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss").format(LocalDateTime.now());
         ZoneId timeZone = ZoneId.systemDefault();
@@ -31,8 +29,31 @@ public class FileManagerServlet extends HttpServlet {
 
         // Текущая отображаемая директория
         String path = req.getParameter("path");
-        if (path == null) {
-            path = System.getProperty("user.dir");
+        if (path != null) {
+
+            HttpSession session = req.getSession(false);
+
+            if (session != null) {
+                String home = System.getProperty("user.home");
+                Object login = session.getAttribute("login");
+                String basePath = home + File.separator + login.toString();
+                if (!isSubDirectory(new File(basePath), new File(path))) {
+                    resp.sendRedirect(req.getContextPath() + "/files");
+                }
+            }
+        } else {
+            HttpSession session = req.getSession();
+            path = System.getProperty("user.home");
+            if (session != null) {
+                Object login = session.getAttribute("login");
+                if (login != null) {
+                    path = path + File.separator + login.toString();
+                } else {
+                    path = path + File.separator + "default";
+                }
+            } else {
+                path = path + File.separator + "default";
+            }
             resp.sendRedirect(String.format("%s%s?path=%s", req.getContextPath(), req.getServletPath(), URLEncoder.encode(path, StandardCharsets.UTF_8.toString())));
             return;
         }
@@ -73,6 +94,19 @@ public class FileManagerServlet extends HttpServlet {
             req.setAttribute("directories", directories);
             req.setAttribute("files", files);
         }
+    }
+    public boolean isSubDirectory(File base, File child) throws IOException {
+        base = base.getCanonicalFile();
+        child = child.getCanonicalFile();
+
+        File parentFile = child;
+        while (parentFile != null) {
+            if (base.equals(parentFile)) {
+                return true;
+            }
+            parentFile = parentFile.getParentFile();
+        }
+        return false;
     }
 
     @Override

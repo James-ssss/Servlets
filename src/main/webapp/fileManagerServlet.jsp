@@ -24,9 +24,38 @@
             white-space: nowrap;
             text-overflow: ellipsis;
           }
+          .wrapper {
+            position: fixed;
+            top: 0;
+            right: 0;
+            margin-top: 10px;
+            margin-right: 10px;
+          }
+
+          .button {
+            display: block;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+          }
         </style>
   </head>
   <body>
+   <form
+        class="logout-form"
+        action="./files/logout"
+        accept-charset="UTF-8"
+        method="post"
+      >
+      <div class="wrapper">
+      <button type="submit" class="btn btn-primary btn-block" role="menuitem">
+                Sign out
+              </button>
+      </div>
+
+      </form>
     <p>${date} ${timeZone}</p>
     <h1>${path}</h1>
     <hr />
