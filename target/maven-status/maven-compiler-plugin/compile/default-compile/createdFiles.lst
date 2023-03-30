@@ -6,3 +6,4 @@ org\example\UserService.class
 org\example\UserRepository.class
 org\example\FileDownloaderServlet.class
 org\example\LogOutServlet.class
+org\example\Userdao.class
