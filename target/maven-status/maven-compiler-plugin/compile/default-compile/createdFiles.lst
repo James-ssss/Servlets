@@ -1,6 +1,7 @@
 org\example\FileManagerServlet.class
 org\example\AuthorizationServlet.class
 org\example\RegistrationServlet.class
+org\example\HibernateUtil.class
 org\example\User.class
 org\example\UserService.class
 org\example\UserRepository.class
